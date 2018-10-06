@@ -53,6 +53,8 @@ int parse_cmdbuf(char *getbuf, char **key, char **value, unsigned int *valsz)
 int do_command(char *key, char **value, unsigned int valsz)
 {
  	char *pnum;
+
+	uprintf("key is %s\n", key);
 	if (!strcmp(key, LED)) {
 		if (valsz != 3) {
 			return -1;
@@ -89,32 +91,87 @@ int do_command(char *key, char **value, unsigned int valsz)
 		} else if (!strcmp(value[0], "read")) {
 			uprintf("%s %s %s %s %s\n", key, value[0], value[1], value[2], value[3]);
 			nand_read(atoi(value[1]), atoi(value[2]), atoi(value[3]));
-		} else if (!strcmp(key, DDRTEST)) {
+		} else {
+			return -1;
+		}
+	} else if (!strcmp(key, DDRTEST)) {
 			/*
-			* 测试ddr的128M的访问是否合法,0x50000000
-			*/
-			//TODO write 0x128M 5a
-
-			/*
+			* 测试ddr的128M的访问是否合法,0x50000000～0x58000000
 			* 测试在一个地址上如0x50008000写入0x5a5a5a5a四个字节  0x5a5a5a三个字节 0x5a5a两个字节 0x5a一个字节
 			* 是否都可以正常读取出来
 			*/
+			#define SDRAM_MIN    (*(volatile unsigned int *)0x50000000)
+			#define SDRAM_MAX    (*(volatile unsigned int *)0x60000000)
+
+			uprintf("addr: 0x%x\n", &SDRAM_MAX);
+			SDRAM_MAX = 0x5a5a5a5a;
+			uprintf("SDRAM_MAX: 0x%x\n", SDRAM_MAX);
+			SDRAM_MAX = 0x5a5a5a;
+			uprintf("SDRAM_MAX: 0x%x\n", SDRAM_MAX);
+			SDRAM_MAX = 0x5a5a;
+			uprintf("SDRAM_MAX: 0x%x\n", SDRAM_MAX);
+			SDRAM_MAX = 0x5a5a;
+			uprintf("SDRAM_MAX: 0x%x\n", SDRAM_MAX);
+			SDRAM_MAX = 0x5A;
+			uprintf("SDRAM_MAX: 0x%x\n", SDRAM_MAX);
+
+			/*
+			* 测试最高位是0  即 00 00 00 5a存储；
+			*/
+			unsigned int *pint = (unsigned int *)0x50000000;
+			*pint = 0x5a;
+			uprintf("0x%x\n", (unsigned int)(long)*pint);
+
+			/*
+			* 同上面的问题类似，求大小端问题，比如是50000003的值为5a 还是500000000的值是5a
+			*/
 			//TODO
+
+			/*
+			* 57000000~58000000是arm.bin从nand复制到内存的空间，不可以操作，否则程序被篡改
+			*/
+			unsigned int *bstart = (unsigned int *)0x57000000;
+			unsigned int *bend   = (unsigned int *)0x58000000;
+
+			unsigned int *pchange;
+			for (pchange = bstart; pchange < bend; pchange++) {
+				*pchange = 0x5a;
+			}
 
 			/*
 			* 测试写入一个地址范围全部为0x5A，然后从某一个固定地址读取出这个数据如 (*(unsigned int *)0x50000001)
 			的值应该就是0x5A
 			*/
-			//TODO
+			volatile unsigned int *from_addr;
+			unsigned int sub = 0x60000000 - 0x50000000;
+			uprintf("0x%x\n", sub);
+			uprintf("0x%x, 0x%x, 0x%x\n", (unsigned int)(long)&SDRAM_MIN,  \
+					(unsigned int)(long)&SDRAM_MAX, (unsigned int)(long)&SDRAM_MAX \
+							- (unsigned int)(long)&SDRAM_MIN + 1);
+			unsigned char *pm = (unsigned char *)0x50000001;
+			//memset((void *)pm, 0xff, (0x60000000 - 0x50000000) + 1);
+			int pmi = 0x7000000;
+			while (pmi--) {
+				*pm++ = 0x5a;
+			}
+
+			uprintf("0x%x\n", (unsigned int)(long)*(volatile unsigned int *)0x50008000);
+			uprintf("--------------------------\n");
+			for (from_addr = (volatile unsigned int *)0x50000000; from_addr < (volatile unsigned int *)0x57000000; from_addr++) {
+				*from_addr = 0x5a5b5c5d;
+			}
+			uprintf("0x%x\n", *(volatile unsigned int *)0x50008000);
 			/*
 			* ddr的复制功能测试，如将某个范围的内存1完全复制到另一个范围2内，然后将内存2的数据完全打印出来和内存1中的
 			进行一个一个字节的比较，看看是否一致，直到所有的数据完全比较完毕
 			*/
-			//TODO
+			volatile unsigned int *from = &SDRAM_MIN;
+			volatile unsigned int *to   = (volatile unsigned int *)0x58000000;
+			for (; from < &SDRAM_MIN + 1024; from++) {
+				*to++ = *from++;
+			}
+			uprintf("0x%x\n", *(volatile unsigned int *)0x58000399);
 
-		} else {
-			return -1;
-		}
 	} else {
 		return -1;
 	}
