@@ -2,7 +2,7 @@
 #A:=b 立即变量
 #A?=b 延时变量  不覆盖
 #A+=b  A=a A+=b A==a b 
-TARGET		:=arm
+TARGET		:=yeyotow
 START_OBJ	:=start.o
 OBJS		:=clock.o ddr.o nand.o boot.o dm9000.o led.o main.o lib.o uart.o cmd_bootm.o cmd_tftp.o net.o tftp.o unpack.o pack.o irq.o go.o
 BIN		:=$(TARGET).bin
@@ -32,7 +32,7 @@ CFLAGS		+=-I./include -Wall -O2 -fno-stack-protector
 #$<第一个依赖  自动变量
 #$^所有依赖  自动变量
 #$@目标 自动变量
-#arm=[ELF][arm.bin]
+#yeyotow=[ELF][yeyotow.bin]
 
 .PHONY:all
 all:$(TARGET)
