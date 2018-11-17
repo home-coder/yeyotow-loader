@@ -7,15 +7,16 @@
 
 void armboot(void)
 {
-	clock_init();
+	//clock_init();
 	led_init();
 	led_on(0);
 
-	ddr_init();
-	nand_init();
-	eth_init();
+	//ddr_init();
+	//nand_init();
+	led_on(1);
+	//eth_init();
 
-	nand_read(0x57000000, 0x0, 0x40000);
+//	nand_read(0x57000000, 0x0, 0x40000);
 
 	__asm__ __volatile__(
 			"mov sp, #0x58000000\n"

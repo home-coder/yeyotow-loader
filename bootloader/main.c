@@ -189,7 +189,9 @@ int main_boot(void)
 	int ret = 0;
 
 	uart_init();
-	uprintf("PC:%x\n", "pc");
+	led_on(1);
+//	uprintf("PC:%x\n", pc);
+//	uprintf("%s", "Hello Yeyotow!\n");
 
 	while (1) {
 		uprintf(SHELL);
