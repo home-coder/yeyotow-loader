@@ -70,7 +70,7 @@ int do_command(char *key, char **value, unsigned int valsz)
 		if (valsz != 2) {
 			return -1;
 		}
-		bootm(atoi(value[0]));
+		//bootm(atoi(value[0]));
 	} else if (!strcmp(key, TFTP)) {
 		if (valsz != 3) {
 			return -1;
@@ -181,7 +181,7 @@ int do_command(char *key, char **value, unsigned int valsz)
 
 int main_boot(void)
 {
-	unsigned int register pc asm("pc");
+//	unsigned int register pc asm("pc");
 	char cmd_buf[1024];
 	char *pbuf, *key;
 	char *value[32];
@@ -189,7 +189,7 @@ int main_boot(void)
 	int ret = 0;
 
 	uart_init();
-	uprintf("PC:%x\n", pc);
+	uprintf("PC:%x\n", "pc");
 
 	while (1) {
 		uprintf(SHELL);

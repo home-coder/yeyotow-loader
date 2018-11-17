@@ -4,11 +4,12 @@
 #A+=b  A=a A+=b A==a b 
 TARGET		:=arm
 START_OBJ	:=start.o
-OBJS		:=clock.o ddr.o nand.o boot.o dm9000.o led.o main.o lib.o uart.o cmd_bootm.o cmd_tftp.o net.o tftp.o unpack.o pack.o irq.o go.o
+OBJS		:=clock.o ddr.o nand.o boot.o dm9000.o led.o main.o lib.o uart.o  cmd_tftp.o net.o tftp.o unpack.o pack.o irq.o go.o
 BIN		:=$(TARGET).bin
 LD_ADDR		:=0x57000000
 
-CROSS_COMPILE	:=arm-linux-gnueabi-
+#CROSS_COMPILE	:=arm-linux-gnueabi-
+CROSS_COMPILE	:=arm-none-eabi-
 Q		:=@
 
 CC		:=$(Q)$(CROSS_COMPILE)gcc
