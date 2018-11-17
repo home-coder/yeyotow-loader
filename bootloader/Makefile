@@ -22,8 +22,9 @@ ECHO		:=$(Q)echo
 
 RM		:=$(Q)rm -rf
 CP		:=$(Q)/bin/cp -rf
+MV      :=$(Q)/bin/mv
 #make prefix=/tftpboot
-prefix		?=/tftproot
+prefix		?=./out
 
 CFLAGS		+=-I./include -Wall -O2 -fno-stack-protector
 #################################
@@ -54,11 +55,14 @@ $(TARGET):$(START_OBJ) $(OBJS)
 
 .PHONY:install
 install:
-	$(CP) $(BIN) $(prefix)
-	$(ECHO) INSTALL	$(BIN) $(prefix) 
+	mv $(BIN) $(prefix)
+	echo "mv bin ./out"
+	mv *.o $(prefix)
+	echo "mv objs ./out"
 .PHONY:clean
 clean:
 	$(RM) *.o $(TARGET) $(BIN)
+	rm  ./out/*
 	$(ECHO) RM	./
 
 
